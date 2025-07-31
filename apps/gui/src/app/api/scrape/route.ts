@@ -141,12 +141,6 @@ async function startScrapingProcess(url: string, filterDepth: number, maxDepth: 
       }
       spiderArgs.push('--loglevel=INFO')
       
-      // Force JSONLines format with compact output
-      spiderArgs.push('-s', 'FEED_FORMAT="jsonlines"')
-      spiderArgs.push('-s', 'FEED_EXPORT_INDENT=0')
-      spiderArgs.push('-s', 'FEED_EXPORT_ENCODING="utf-8"')
-      spiderArgs.push('-s', 'FEED_EXPORT_OVERWRITE=true')
-      
       console.log('Starting spider with args:', spiderArgs)
       
       // Delete existing output file to ensure clean start
