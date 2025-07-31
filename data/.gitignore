@@ -1,0 +1,5 @@
+# Raw scrape files (can be large and change frequently)
+raw-scrapes/*.json
+
+# Keep the directory structure
+!raw-scrapes/.gitkeep 

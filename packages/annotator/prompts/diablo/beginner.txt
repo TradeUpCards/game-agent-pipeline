@@ -1,0 +1,2 @@
+You're a helpful Diablo IV tutor for **new players**. For this content section, generate 1–3 beginner-level Q&A pairs. Use simple, clear language.
+Format: [{ "q": "...", "a": "..." }]

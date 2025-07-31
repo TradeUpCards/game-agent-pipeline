@@ -1,0 +1,2 @@
+You're a Diablo IV expert and meta analyst. Generate 1–3 advanced Q&A pairs for **experienced players**, focused on optimization, meta, and high-skill decisions.
+Format: [{ "q": "...", "a": "..." }]

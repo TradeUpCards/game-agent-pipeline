@@ -1,0 +1,2 @@
+# This file ensures the raw-scrapes directory is tracked in git
+# Raw scrape JSON files will be placed here by the scrapy tool 

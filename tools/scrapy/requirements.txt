@@ -1,0 +1,17 @@
+# Scrapy Web Scraper Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core scraping framework
+scrapy>=2.11.0
+
+# HTML parsing
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Additional utilities
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Optional: For enhanced parsing
+cssselect>=1.2.0
+itemadapter>=0.8.0 
