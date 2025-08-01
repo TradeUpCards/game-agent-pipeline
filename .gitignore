@@ -65,3 +65,9 @@ venv.bak/
 
 # OS
 Thumbs.db
+
+# Training data
+diablo-agent-training/
+
+# Unused scrapy scripts
+tools/scrapy/unused-scripts/

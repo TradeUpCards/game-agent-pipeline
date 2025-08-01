@@ -190,39 +190,158 @@ class MaxrollSpider(scrapy.Spider):
         content = {
             'url': response.url,
             'title': title,
-            'content': {},
+            'content': [],  # Changed to array to preserve document order
             'metadata': {}
         }
         
-        # Extract headings
-        headings = []
-        for i in range(1, 7):
-            for heading in response.css(f'h{i}::text').getall():
-                headings.append({
-                    'level': i,
-                    'text': heading.strip()
-                })
-        content['content']['headings'] = headings
+        # Extract content in document order by iterating through all elements
+        main_content_selector = 'main, article, .content, body'
+        main_content_elements = response.css(main_content_selector)
+        if main_content_elements:
+            main_content = main_content_elements[0]
+        else:
+            main_content = response
         
-        # Extract paragraphs
-        paragraphs = []
-        for p in response.css('p::text').getall():
-            text = p.strip()
-            if text and len(text) > 10:  # Only meaningful paragraphs
-                paragraphs.append(text)
-        content['content']['paragraphs'] = paragraphs
+        # Process elements in document order - using a comprehensive selector to catch all content
+        content_selector = 'h1, h2, h3, h4, h5, h6, p, ul, ol, dl, blockquote, figure, figcaption, div.content-block, section > *'
         
-        # Extract lists
-        lists = []
-        for ul in response.css('ul'):
-            list_items = []
-            for li in ul.css('li::text').getall():
-                text = li.strip()
-                if text:
-                    list_items.append(text)
-            if list_items:
-                lists.append(list_items)
-        content['content']['lists'] = lists
+        for element in main_content.css(content_selector):
+            element_tag = element.root.tag.lower()
+            
+            if element_tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                # Handle headings - extract all text including nested elements
+                texts = []
+                for text_node in element.css('*::text, ::text').getall():
+                    text = text_node.strip()
+                    if text:
+                        texts.append(text)
+                
+                if texts:
+                    full_text = ' '.join(texts).strip()
+                    if full_text:
+                        content['content'].append({
+                            'type': 'heading',
+                            'level': int(element_tag[1]),
+                            'text': full_text
+                        })
+            
+            elif element_tag == 'p':
+                # Handle paragraphs - extract all text including from mark elements
+                texts = []
+                for text_node in element.css('*::text, ::text').getall():
+                    text = text_node.strip()
+                    if text:
+                        texts.append(text)
+                
+                if texts:
+                    full_text = ' '.join(texts).strip()
+                    if full_text and len(full_text) > 10:  # Only meaningful paragraphs
+                        content['content'].append({
+                            'type': 'paragraph',
+                            'text': full_text
+                        })
+            
+            elif element_tag in ['ul', 'ol']:
+                # Handle lists - extract all text including from mark elements
+                list_items = []
+                for li in element.css('li'):
+                    li_texts = []
+                    for text_node in li.css('*::text, ::text').getall():
+                        text = text_node.strip()
+                        if text:
+                            li_texts.append(text)
+                    
+                    if li_texts:
+                        full_text = ' '.join(li_texts).strip()
+                        if full_text:
+                            list_items.append(full_text)
+                
+                if list_items:
+                    content['content'].append({
+                        'type': 'list',
+                        'list_type': element_tag,
+                        'items': list_items
+                    })
+            
+            elif element_tag == 'dl':
+                # Handle definition lists
+                dl_items = []
+                current_dt = None
+                
+                for child in element.css('dt, dd'):
+                    child_tag = child.root.tag.lower()
+                    texts = []
+                    for text_node in child.css('*::text, ::text').getall():
+                        text = text_node.strip()
+                        if text:
+                            texts.append(text)
+                    
+                    if texts:
+                        full_text = ' '.join(texts).strip()
+                        if child_tag == 'dt':
+                            current_dt = full_text
+                        elif child_tag == 'dd' and current_dt:
+                            dl_items.append(f"{current_dt}: {full_text}")
+                            current_dt = None
+                
+                if dl_items:
+                    content['content'].append({
+                        'type': 'definition_list',
+                        'items': dl_items
+                    })
+            
+            elif element_tag == 'blockquote':
+                # Handle blockquotes
+                texts = []
+                for text_node in element.css('*::text, ::text').getall():
+                    text = text_node.strip()
+                    if text:
+                        texts.append(text)
+                
+                if texts:
+                    full_text = ' '.join(texts).strip()
+                    if full_text:
+                        content['content'].append({
+                            'type': 'blockquote',
+                            'text': full_text
+                        })
+            
+            elif element_tag == 'figcaption':
+                # Handle figure captions
+                texts = []
+                for text_node in element.css('*::text, ::text').getall():
+                    text = text_node.strip()
+                    if text:
+                        texts.append(text)
+                
+                if texts:
+                    full_text = ' '.join(texts).strip()
+                    if full_text:
+                        content['content'].append({
+                            'type': 'figcaption',
+                            'text': full_text
+                        })
+            
+            elif element_tag == 'figure':
+                # Handle figures - look for figcaption within
+                figcaption = element.css('figcaption')
+                if figcaption:
+                    texts = []
+                    for text_node in figcaption.css('*::text, ::text').getall():
+                        text = text_node.strip()
+                        if text:
+                            texts.append(text)
+                    
+                    if texts:
+                        full_text = ' '.join(texts).strip()
+                        if full_text:
+                            content['content'].append({
+                                'type': 'figcaption',
+                                'text': full_text
+                            })
+        
+        # Store additional metadata (links, images, etc.) separately
+        additional_data = {}
         
         # Extract links
         links = []
@@ -235,7 +354,7 @@ class MaxrollSpider(scrapy.Spider):
                     'url': full_url,
                     'text': text.strip()
                 })
-        content['content']['links'] = links
+        additional_data['links'] = links
         
         # Extract images
         images = []
@@ -248,7 +367,7 @@ class MaxrollSpider(scrapy.Spider):
                     'src': full_src,
                     'alt': alt
                 })
-        content['content']['images'] = images
+        additional_data['images'] = images
         
         # Extract metadata
         meta = {}
@@ -267,7 +386,7 @@ class MaxrollSpider(scrapy.Spider):
                 structured_data.append(data)
             except json.JSONDecodeError:
                 pass
-        content['content']['structured_data'] = structured_data
+        additional_data['structured_data'] = structured_data
         
         # Extract tables
         tables = []
@@ -283,7 +402,7 @@ class MaxrollSpider(scrapy.Spider):
                     table_data.append(row_data)
             if table_data:
                 tables.append(table_data)
-        content['content']['tables'] = tables
+        additional_data['tables'] = tables
         
         # Extract code blocks
         code_blocks = []
@@ -291,7 +410,10 @@ class MaxrollSpider(scrapy.Spider):
             text = code.strip()
             if text:
                 code_blocks.append(text)
-        content['content']['code_blocks'] = code_blocks
+        additional_data['code_blocks'] = code_blocks
+        
+        # Add additional data to content
+        content['additional_data'] = additional_data
         
         # Collect data in memory for sorting and deduplication
         self._collect_data(content)

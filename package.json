@@ -5,5 +5,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "build": "pnpm run -r build",
+    "build:parser": "pnpm --filter @game-agent-pipeline/parser build",
+    "dev": "pnpm run -r dev"
+  }
 }
