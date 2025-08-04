@@ -10,7 +10,8 @@ import {
   MessageSquare, 
   Settings,
   FolderOpen,
-  Sparkles
+  Sparkles,
+  Bug
 } from 'lucide-react'
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: 'Scraper', href: '/scraper', icon: Globe },
   { name: 'Data Browser', href: '/data', icon: Database },
   { name: 'Parser', href: '/parser', icon: FolderOpen },
+  { name: 'Debug', href: '/debug', icon: Bug },
   { name: 'Annotator', href: '/annotator', icon: MessageSquare },
   { name: 'Training Sets', href: '/training', icon: Sparkles },
   { name: 'Settings', href: '/settings', icon: Settings },

@@ -1,0 +1,124 @@
+{
+  "title": "Echo of Lilith - D4 Maxroll.gg",
+  "url": "https://maxroll.gg/d4/bosses/echo-of-lilith",
+  "bossVersions": [
+    {
+      "name": "Echo of Lilith, Hatred Incarnate",
+      "abilities": [
+        {
+          "name": "Blood Orb Creation",
+          "description": "Description for Blood Orb Creation"
+        },
+        {
+          "name": "Melee Combo",
+          "description": "Description for Melee Combo"
+        },
+        {
+          "name": "Fissure (single)",
+          "description": "Description for Fissure (single)"
+        }
+      ],
+      "strategies": [
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        }
+      ]
+    },
+    {
+      "name": "Echo of Lilith, Mother of Mankind",
+      "abilities": [
+        {
+          "name": "Blood Orb Creation (single)",
+          "description": "Description for Blood Orb Creation (single)"
+        },
+        {
+          "name": "Blood Orb Creation (quadruple)",
+          "description": "Description for Blood Orb Creation (quadruple)"
+        },
+        {
+          "name": "Melee Combo",
+          "description": "Description for Melee Combo"
+        }
+      ],
+      "strategies": [
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        },
+        {
+          "name": "Strategy",
+          "description": "Description for Strategy"
+        }
+      ]
+    },
+    {
+      "name": "Lilith, Mother of Mankind",
+      "abilities": [],
+      "strategies": []
+    }
+  ],
+  "generalContent": [
+    {
+      "heading": "Table of Contents",
+      "content": "Description for Table of Contents"
+    },
+    {
+      "heading": "Tormented Debuff",
+      "content": "Description for Tormented Debuff"
+    },
+    {
+      "heading": "Attacks and Abilities",
+      "content": "Description for Attacks and Abilities"
+    },
+    {
+      "heading": "Tips, Tricks and Cheese",
+      "content": "Description for Tips, Tricks and Cheese"
+    },
+    {
+      "heading": "Summary",
+      "content": "Description for Summary"
+    }
+  ],
+  "bossStats": {
+    "level": 100,
+    "hp": "~24,000,000",
+    "staggerHp": 500
+  }
+}

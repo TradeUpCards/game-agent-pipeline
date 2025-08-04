@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useEffect } from 'react'
-import { Header } from '@/components/header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ScrapeResult {
@@ -478,7 +477,6 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Header />
       <main className="p-4 sm:p-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-4 sm:p-6">

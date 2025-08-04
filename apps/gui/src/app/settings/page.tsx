@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Header } from '@/components/header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Settings, Key, Save, Eye, EyeOff } from 'lucide-react'
@@ -20,8 +19,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Header />
-      
       <main className="container mx-auto py-6 px-4">
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Header */}

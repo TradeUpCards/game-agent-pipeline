@@ -6,7 +6,7 @@ import { ContentParser } from '@game-agent-pipeline/parser'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { inputFile, outputDir, contentType = 'auto', dryRun = false } = body
+    const { inputFile, outputDir, contentType = 'auto', dryRun = false, preserveHierarchy = false } = body
 
     if (!inputFile) {
       return NextResponse.json(
@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       inputFile: inputPath,
       outputDir: outputPath,
       dryRun,
-      verbose: true
+      verbose: true,
+      preserveHierarchy
     })
 
     // Run the parser

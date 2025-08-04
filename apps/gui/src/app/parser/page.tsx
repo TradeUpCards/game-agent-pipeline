@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Header } from '@/components/header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { 
@@ -52,6 +51,8 @@ export default function Parser() {
     }
   }
 
+  const [preserveHierarchy, setPreserveHierarchy] = useState(false)
+
   const parseFile = async () => {
     if (!selectedFile) return
     
@@ -65,7 +66,8 @@ export default function Parser() {
         body: JSON.stringify({ 
           inputFile: selectedFile,
           outputDir: outputDir,
-          contentType: contentType
+          contentType: contentType,
+          preserveHierarchy: preserveHierarchy
         })
       })
       
@@ -124,8 +126,6 @@ export default function Parser() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Header />
-      
       <main className="container mx-auto py-6 px-4">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
@@ -238,6 +238,24 @@ export default function Parser() {
                     <option value="news">News & Updates</option>
                   </select>
                 </div>
+              </div>
+              
+              <div className="mt-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={preserveHierarchy}
+                    onChange={(e) => setPreserveHierarchy(e.target.checked)}
+                    disabled={parsing}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium">
+                    Preserve Hierarchy (Boss Versions, Abilities, Strategies)
+                  </span>
+                </label>
+                <p className="text-xs text-muted-foreground mt-1 ml-6">
+                  Enable hierarchical parsing for boss pages to preserve boss version context and organize abilities/strategies properly
+                </p>
               </div>
             </CardContent>
           </Card>

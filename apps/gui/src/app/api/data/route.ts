@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
       const trainingDir = path.join(process.cwd(), '..', '..', 'diablo-agent-training')
       const filePath = path.join(trainingDir, file)
       
+      console.log('Loading parsed file:', { file, trainingDir, filePath, exists: fs.existsSync(filePath) })
+      
       // Security check - ensure file is within training directory
       if (!filePath.startsWith(trainingDir)) {
         return NextResponse.json(
@@ -44,6 +46,53 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           success: true,
           content: jsonContent,
+          fileName: file
+        })
+      } catch (parseError) {
+        return NextResponse.json(
+          { success: false, error: 'Failed to parse file content' },
+          { status: 500 }
+        )
+      }
+    }
+
+    // If file parameter is provided for scraped data, load the file directly
+    if (file && type === 'scraped') {
+      const dataDir = path.join(process.cwd(), '..', '..', 'data')
+      const scrapesDir = path.join(dataDir, 'raw-scrapes')
+      const filePath = path.join(scrapesDir, file)
+      
+      // Security check - ensure file is within scrapes directory
+      if (!filePath.startsWith(scrapesDir)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid file path' },
+          { status: 400 }
+        )
+      }
+      
+      if (!fs.existsSync(filePath)) {
+        return NextResponse.json(
+          { success: false, error: 'File not found' },
+          { status: 404 }
+        )
+      }
+      
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8')
+        
+        // Try parsing as JSON array first
+        let jsonData
+        try {
+          jsonData = JSON.parse(content)
+        } catch (jsonError) {
+          // If that fails, try parsing as JSONL (JSON Lines)
+          const lines = content.trim().split('\n').filter(line => line.trim())
+          jsonData = lines.map(line => JSON.parse(line))
+        }
+        
+        return NextResponse.json({
+          success: true,
+          content: jsonData,
           fileName: file
         })
       } catch (parseError) {
@@ -214,10 +263,10 @@ export async function GET(request: NextRequest) {
             }
 
             files.push({
-              name: item,
+              name: path.join(relativePath, item).replace(/\\/g, '/'),
               path: `/${path.relative(process.cwd(), dir).replace(/\\/g, '/')}/`,
               size: stats.size,
-              type: 'training',
+              type: 'parsed',
               lastModified: stats.mtime.toISOString(),
               itemCount
             })

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Header } from '@/components/header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { 
@@ -87,8 +86,6 @@ export default function DataBrowser() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Header />
-      
       <main className="container mx-auto py-6 px-4">
         <div className="space-y-6">
           {/* Header */}
