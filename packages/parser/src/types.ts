@@ -43,11 +43,6 @@ export interface HierarchicalContent {
   url: string;
   bossVersions?: BossVersion[];
   generalContent?: ParsedContent[];
-  bossStats?: {
-    level: number;
-    hp: string;
-    staggerHp: number;
-  };
 }
 
 export interface SectionMapping {

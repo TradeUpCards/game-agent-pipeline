@@ -51,7 +51,7 @@ export default function Parser() {
     }
   }
 
-  const [preserveHierarchy, setPreserveHierarchy] = useState(false)
+  const [preserveHierarchy, setPreserveHierarchy] = useState(true)
 
   const parseFile = async () => {
     if (!selectedFile) return

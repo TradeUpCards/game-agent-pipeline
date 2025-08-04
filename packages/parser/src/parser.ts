@@ -101,13 +101,14 @@ export class ContentParser {
         console.log(`Processing page: ${page.title}`);
         console.log(`- Is boss page: ${isBossPage}`);
         console.log(`- Preserve hierarchy: ${this.options.preserveHierarchy}`);
-        console.log(`- Will use hierarchical: ${isBossPage && this.options.preserveHierarchy}`);
       }
       
+      // Always create content blocks version
+      await this.processPageStandard(page);
+      
+      // Additionally create hierarchical version for boss pages when preserveHierarchy is enabled
       if (isBossPage && this.options.preserveHierarchy) {
         await this.processBossPageHierarchically(page);
-      } else {
-        await this.processPageStandard(page);
       }
 
     } catch (error) {
@@ -138,7 +139,7 @@ export class ContentParser {
       console.log(`Hierarchical content for ${page.title}:`);
       console.log(`- Boss versions: ${hierarchicalContent.bossVersions?.length || 0}`);
       console.log(`- General content: ${hierarchicalContent.generalContent?.length || 0}`);
-      console.log(`- Boss stats: ${hierarchicalContent.bossStats ? 'Present' : 'Not found'}`);
+      console.log(`- Boss stats: Will be extracted per version`);
       
       if (hierarchicalContent.bossVersions && hierarchicalContent.bossVersions.length > 0) {
         hierarchicalContent.bossVersions.forEach((version, index) => {
@@ -157,9 +158,9 @@ export class ContentParser {
       return;
     }
 
-    // Create output path
+    // Create output path for hierarchical version
     const outputPath = path.join(this.options.outputDir, targetFolder);
-    const outputFile = path.join(outputPath, `${slug}.json`);
+    const outputFile = path.join(outputPath, `${slug}-hierarchical.json`);
 
     if (this.options.dryRun) {
       if (this.options.verbose) {
@@ -192,8 +193,7 @@ export class ContentParser {
       title: page.title,
       url: page.url,
       bossVersions: [],
-      generalContent: [],
-      bossStats: undefined
+      generalContent: []
     };
 
     // Handle both old and new content formats
@@ -220,8 +220,7 @@ export class ContentParser {
       return content;
     }
 
-    // Extract boss stats first
-    content.bossStats = this.extractBossStats(paragraphs);
+    // Remove global boss stats extraction - will extract per version instead
 
     // Group content by boss versions
     let currentBossVersion: BossVersion | null = null;
@@ -233,7 +232,7 @@ export class ContentParser {
       const nextHeading = headings[i + 1];
 
       // Find paragraphs that belong to this heading
-      const headingParagraphs = this.getParagraphsForHeading(heading, paragraphs, nextHeading);
+      const headingParagraphs = this.getParagraphsForHeading(heading, page.content, nextHeading);
 
       if (heading.level === 3 && this.isBossVersionHeading(heading.text)) {
         // Save previous boss version if exists
@@ -241,9 +240,13 @@ export class ContentParser {
           content.bossVersions!.push(currentBossVersion);
         }
 
-        // Start new boss version
+        // Start new boss version and extract its stats
+        const bossStats = this.extractBossStatsForVersion(heading.text, page.content);
         currentBossVersion = {
           name: heading.text,
+          level: bossStats?.level,
+          hp: bossStats?.hp,
+          staggerHp: bossStats?.staggerHp,
           abilities: [],
           strategies: []
         };
@@ -328,6 +331,49 @@ export class ContentParser {
     return abilityPatterns.some(pattern => pattern.test(text));
   }
 
+  private extractBossStatsForVersion(bossName: string, contentArray: any[]): { level: number; hp: string; staggerHp: number } | undefined {
+    // Find content that comes after this boss version heading
+    let foundBoss = false;
+    let bossContent: string[] = [];
+    
+    for (const item of contentArray) {
+      // Check if we've found our target boss version
+      if (item.type === 'heading' && item.text === bossName) {
+        foundBoss = true;
+        continue;
+      }
+      
+      // If we found our boss, collect content until next heading
+      if (foundBoss) {
+        if (item.type === 'heading') {
+          break; // Stop at next heading
+        }
+        
+        if (item.type === 'paragraph' && item.text) {
+          bossContent.push(item.text);
+        }
+      }
+    }
+    
+    // Look for boss stats in the collected content
+    const combinedText = bossContent.join(' ');
+    
+    // Look for level, HP, and stagger HP patterns
+    const levelMatch = combinedText.match(/Level:\s*(\d+)/i);
+    const hpMatch = combinedText.match(/HP:\s*(~?[\d,]+)/i);
+    const staggerMatch = combinedText.match(/Stagger HP:\s*(\d+)/i);
+    
+    if (levelMatch || hpMatch || staggerMatch) {
+      return {
+        level: levelMatch ? parseInt(levelMatch[1]) : 0,
+        hp: hpMatch ? hpMatch[1].trim() : '',
+        staggerHp: staggerMatch ? parseInt(staggerMatch[1]) : 0
+      };
+    }
+    
+    return undefined;
+  }
+
   private extractBossStats(paragraphs: any[]): { level: number; hp: string; staggerHp: number } | undefined {
     for (const paragraph of paragraphs) {
       const text = paragraph.text || paragraph;
@@ -343,14 +389,46 @@ export class ContentParser {
     return undefined;
   }
 
-  private getParagraphsForHeading(heading: any, paragraphs: any[], nextHeading?: any): string[] {
-    // In the new content format, we need to find paragraphs that come after this heading
-    // until the next heading. Since we're working with the full content array,
-    // we need to find the heading's position and get paragraphs until the next heading.
+  private getParagraphsForHeading(heading: any, contentArray: any[], nextHeading?: any): string[] {
+    // Extract actual content for this heading
+    const content: string[] = [];
     
-    // For now, return a simple description since the hierarchical structure is complex
-    // This will at least create the hierarchical structure even if descriptions are basic
-    return ['Description for ' + heading.text];
+    // Find content that comes after this heading until the next heading
+    let foundHeading = false;
+    
+    for (const item of contentArray) {
+      // Check if we've found our target heading
+      if (item.type === 'heading' && item.text === heading.text) {
+        foundHeading = true;
+        continue;
+      }
+      
+      // If we found our heading, start collecting content
+      if (foundHeading) {
+        // Stop if we hit another heading
+        if (item.type === 'heading') {
+          break;
+        }
+        
+        // Collect non-heading content
+        if (item.type === 'paragraph' && item.text) {
+          content.push(item.text);
+        } else if (item.type === 'list' && item.items) {
+          content.push(item.items.join('. '));
+        } else if (item.type === 'blockquote' && item.text) {
+          content.push(`"${item.text}"`);
+        } else if (item.type === 'figcaption' && item.text) {
+          content.push(`Caption: ${item.text}`);
+        }
+      }
+    }
+    
+    // If we didn't find any content, return a fallback
+    if (content.length === 0) {
+      return [`Content for ${heading.text}`];
+    }
+    
+    return content;
   }
 
   private async processPageStandard(page: ScrapedPage): Promise<void> {

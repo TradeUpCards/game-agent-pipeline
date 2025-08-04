@@ -22,9 +22,12 @@ program
   .option('--preserve-hierarchy', 'Enable hierarchical parsing for boss pages (preserves boss versions, abilities, strategies)')
   .action(async (inputFile: string, options: any) => {
     try {
+      // Get the project root directory (two levels up from packages/parser)
+      const projectRoot = path.resolve(__dirname, '..', '..');
+      
       const parseOptions: ParseOptions = {
         inputFile: path.resolve(inputFile),
-        outputDir: path.resolve(options.output),
+        outputDir: path.resolve(projectRoot, options.output),
         dryRun: options.dryRun || false,
         verbose: options.verbose || false,
         preserveHierarchy: options.preserveHierarchy || false

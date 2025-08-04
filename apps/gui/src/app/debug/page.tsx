@@ -23,13 +23,11 @@ interface ParsedContent {
 interface HierarchicalContent {
   title: string
   url: string
-  bossStats?: {
-    level: number
-    hp: string
-    staggerHp: number
-  }
   bossVersions?: Array<{
     name: string
+    level?: number
+    hp?: string
+    staggerHp?: number
     abilities: Array<{
       name: string
       description: string
@@ -248,7 +246,7 @@ export default function DebugPage() {
         </Card>
 
         {selectedPage && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-300px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="flex flex-col">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Original Website</CardTitle>
@@ -276,22 +274,8 @@ export default function DebugPage() {
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  Parsed Content
-                  {parsedFile && (
-                    <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                      (from {parsedFile})
-                    </span>
-                  )}
-                </CardTitle>
-                <CardDescription>
-                  {isHierarchicalData(parsedData) ? 'Hierarchical structure with boss versions' : 'Standard content blocks'}
-                </CardDescription>
-              </CardHeader>
-              
-              <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-3 shadow-sm">
+            <div className="flex flex-col">
+              <div className="sticky top-14 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-3 shadow-sm mb-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     View Mode:
@@ -340,176 +324,196 @@ export default function DebugPage() {
                 </div>
               </div>
 
-              <CardContent className="flex-1 p-0">
-                <div className="h-full overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800 rounded-b-lg">
-                  {viewMode === 'scraped' && (
-                    <div className="space-y-4">
-                      {selectedPage?.content?.map((item, i) => (
-                        <div key={i} className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                              {item.type}
-                            </span>
-                            {item.level && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300">
-                                H{item.level}
+              <Card className="flex flex-col">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    Parsed Content
+                    {parsedFile && (
+                      <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                        (from {parsedFile})
+                      </span>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    {isHierarchicalData(parsedData) ? 'Hierarchical structure with boss versions' : 'Standard content blocks'}
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className="flex-1 p-0">
+                  <div className="h-full overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800 rounded-b-lg">
+                    {viewMode === 'scraped' && (
+                      <div className="space-y-4">
+                        {selectedPage?.content?.map((item, i) => (
+                          <div key={i} className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                                {item.type}
                               </span>
-                            )}
-                          </div>
-                          <div className="text-gray-900 dark:text-gray-100">
-                            {item.type === 'list' ? (
-                              <ul className="list-disc list-inside space-y-1">
-                                {item.items?.map((listItem, j) => (
-                                  <li key={j} className="text-gray-700 dark:text-gray-300">{listItem}</li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{item.text}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {viewMode === 'parsed' && (
-                    <div className="space-y-4">
-                      {parsedData ? (
-                        Array.isArray(parsedData) ? (
-                          parsedData.map((block, index) => (
-                            <div key={index} className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
-                              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{block.heading}</h4>
-                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{block.content}</p>
+                              {item.level && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300">
+                                  H{item.level}
+                                </span>
+                              )}
                             </div>
-                          ))
+                            <div className="text-gray-900 dark:text-gray-100">
+                              {item.type === 'list' ? (
+                                <ul className="list-disc list-inside space-y-1">
+                                  {item.items?.map((listItem, j) => (
+                                    <li key={j} className="text-gray-700 dark:text-gray-300">{listItem}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{item.text}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {viewMode === 'parsed' && (
+                      <div className="space-y-4">
+                        {parsedData ? (
+                          Array.isArray(parsedData) ? (
+                            parsedData.map((block, index) => (
+                              <div key={index} className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{block.heading}</h4>
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{block.content}</p>
+                              </div>
+                            ))
+                          ) : (
+                            convertToParsed(selectedPage).map((block, index) => (
+                              <div key={index} className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{block.heading}</h4>
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{block.content}</p>
+                              </div>
+                            ))
+                          )
                         ) : (
-                          convertToParsed(selectedPage).map((block, index) => (
-                            <div key={index} className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
-                              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{block.heading}</h4>
-                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{block.content}</p>
-                            </div>
-                          ))
-                        )
-                      ) : (
-                        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                          No parsed data available
-                        </div>
-                      )}
-                    </div>
-                  )}
+                          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                            No parsed data available
+                          </div>
+                        )}
+                      </div>
+                    )}
 
-                  {viewMode === 'hierarchical' && (
-                    <div className="space-y-6">
-                      {parsedData && isHierarchicalData(parsedData) ? (
-                        <>
-                          {parsedData.bossStats && (
-                            <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-6">
-                              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Boss Stats</h4>
-                              <div className="grid grid-cols-3 gap-4">
-                                <div className="text-center">
-                                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                                    {parsedData.bossStats.level}
-                                  </div>
-                                  <div className="text-sm text-gray-600 dark:text-gray-400">Level</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                                    {parsedData.bossStats.hp}
-                                  </div>
-                                  <div className="text-sm text-gray-600 dark:text-gray-400">HP</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                                    {parsedData.bossStats.staggerHp}
-                                  </div>
-                                  <div className="text-sm text-gray-600 dark:text-gray-400">Stagger HP</div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {parsedData.bossVersions && parsedData.bossVersions.length > 0 && (
-                            <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-6">
-                              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Boss Versions</h4>
-                              <div className="space-y-4">
-                                {parsedData.bossVersions.map((version, index) => (
-                                  <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                                    <h5 className="font-semibold text-lg text-gray-900 dark:text-white mb-3">
-                                      {version.name}
-                                    </h5>
-                                    
-                                    {version.abilities && version.abilities.length > 0 && (
-                                      <div className="mb-4">
-                                        <h6 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Abilities:</h6>
-                                        <div className="space-y-2">
-                                          {version.abilities.map((ability, abilityIndex) => (
-                                            <div key={abilityIndex} className="pl-4 border-l-2 border-blue-200 dark:border-blue-800">
-                                              <div className="font-medium text-blue-600 dark:text-blue-400">
-                                                {ability.name}
+                    {viewMode === 'hierarchical' && (
+                      <div className="space-y-6">
+                        {parsedData && isHierarchicalData(parsedData) ? (
+                          <>
+                            {parsedData.bossVersions && parsedData.bossVersions.length > 0 && (
+                              <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-6">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Boss Versions</h4>
+                                <div className="space-y-4">
+                                  {parsedData.bossVersions.map((version, index) => (
+                                    <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                      <div className="mb-3">
+                                        <h5 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">
+                                          {version.name}
+                                        </h5>
+                                        {(version.level || version.hp || version.staggerHp) && (
+                                          <div className="grid grid-cols-3 gap-4 text-sm">
+                                            {version.level && (
+                                              <div className="text-center">
+                                                <div className="font-bold text-blue-600 dark:text-blue-400">
+                                                  {version.level}
+                                                </div>
+                                                <div className="text-gray-600 dark:text-gray-400">Level</div>
                                               </div>
-                                              <div className="text-sm text-gray-600 dark:text-gray-400">
-                                                {ability.description}
+                                            )}
+                                            {version.hp && (
+                                              <div className="text-center">
+                                                <div className="font-bold text-green-600 dark:text-green-400">
+                                                  {version.hp}
+                                                </div>
+                                                <div className="text-gray-600 dark:text-gray-400">HP</div>
                                               </div>
-                                            </div>
-                                          ))}
-                                        </div>
+                                            )}
+                                            {version.staggerHp && (
+                                              <div className="text-center">
+                                                <div className="font-bold text-purple-600 dark:text-purple-400">
+                                                  {version.staggerHp}
+                                                </div>
+                                                <div className="text-gray-600 dark:text-gray-400">Stagger HP</div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-
-                                    {version.strategies && version.strategies.length > 0 && (
-                                      <div>
-                                        <h6 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Strategies:</h6>
-                                        <div className="space-y-2">
-                                          {version.strategies.map((strategy, strategyIndex) => (
-                                            <div key={strategyIndex} className="pl-4 border-l-2 border-green-200 dark:border-green-800">
-                                              <div className="font-medium text-green-600 dark:text-green-400">
-                                                {strategy.name}
+                                      
+                                      {version.abilities && version.abilities.length > 0 && (
+                                        <div className="mb-4">
+                                          <h6 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Abilities:</h6>
+                                          <div className="space-y-2">
+                                            {version.abilities.map((ability, abilityIndex) => (
+                                              <div key={abilityIndex} className="pl-4 border-l-2 border-blue-200 dark:border-blue-800">
+                                                <div className="font-medium text-blue-600 dark:text-blue-400">
+                                                  {ability.name}
+                                                </div>
+                                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                  {ability.description}
+                                                </div>
                                               </div>
-                                              <div className="text-sm text-gray-600 dark:text-gray-400">
-                                                {strategy.description}
-                                              </div>
-                                            </div>
-                                          ))}
+                                            ))}
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                                      )}
 
-                          {parsedData.generalContent && parsedData.generalContent.length > 0 && (
-                            <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-6">
-                              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">General Content</h4>
-                              <div className="space-y-4">
-                                {parsedData.generalContent.map((block, index) => (
-                                  <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                                    <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                      {block.heading}
-                                    </h5>
-                                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                                      {block.content}
+                                      {version.strategies && version.strategies.length > 0 && (
+                                        <div>
+                                          <h6 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Strategies:</h6>
+                                          <div className="space-y-2">
+                                            {version.strategies.map((strategy, strategyIndex) => (
+                                              <div key={strategyIndex} className="pl-4 border-l-2 border-green-200 dark:border-green-800">
+                                                <div className="font-medium text-green-600 dark:text-green-400">
+                                                  {strategy.name}
+                                                </div>
+                                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                  {strategy.description}
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
-                                  </div>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                          No hierarchical data available
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                            )}
+
+                            {parsedData.generalContent && parsedData.generalContent.length > 0 && (
+                              <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-6">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">General Content</h4>
+                                <div className="space-y-4">
+                                  {parsedData.generalContent.map((block, index) => (
+                                    <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                      <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
+                                        {block.heading}
+                                      </h5>
+                                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                                        {block.content}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                            No hierarchical data available
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       </div>
     </div>
   )
-}
+} 
