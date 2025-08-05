@@ -22,12 +22,12 @@ export interface BossVersion {
   hp?: string;
   staggerHp?: number;
   abilities: BossAbility[];
-  strategies?: BossStrategy[];
 }
 
 export interface BossAbility {
   name: string;
   description: string;
+  strategy?: string;
   phase?: string;
   mechanics?: string[];
 }
@@ -43,6 +43,14 @@ export interface HierarchicalContent {
   url: string;
   bossVersions?: BossVersion[];
   generalContent?: ParsedContent[];
+  sections?: {
+    introduction?: ParsedContent[];
+    mechanics?: ParsedContent[];
+    fightProgression?: ParsedContent[];
+    advancedStrategy?: ParsedContent[];
+    summary?: ParsedContent[];
+    footer?: ParsedContent[];
+  };
 }
 
 export interface SectionMapping {

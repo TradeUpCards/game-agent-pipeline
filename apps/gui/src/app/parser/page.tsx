@@ -14,6 +14,7 @@ import {
   X,
   Eye
 } from 'lucide-react'
+import { HierarchicalViewer } from '@/components/hierarchical-viewer'
 
 export default function Parser() {
   const [selectedFile, setSelectedFile] = useState<string>('')
@@ -25,6 +26,7 @@ export default function Parser() {
   const [previewContent, setPreviewContent] = useState<any>(null)
   const [loadingPreview, setLoadingPreview] = useState(false)
   const [previewMode, setPreviewMode] = useState<'parsed' | 'original'>('parsed')
+  const [viewMode, setViewMode] = useState<'hierarchical' | 'raw'>('hierarchical')
   const [originalContent, setOriginalContent] = useState<any>(null)
   const [outputDir, setOutputDir] = useState('diablo-agent-training')
   const [contentType, setContentType] = useState('auto')
@@ -398,8 +400,48 @@ export default function Parser() {
                               </div>
                             </div>
                           ))
+                        ) : previewContent.bossVersions || previewContent.sections ? (
+                          <div>
+                            {/* View Mode Toggle */}
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">View Mode:</span>
+                                <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                                  <button
+                                    onClick={() => setViewMode('hierarchical')}
+                                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                                      viewMode === 'hierarchical'
+                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                                    }`}
+                                  >
+                                    Hierarchical
+                                  </button>
+                                  <button
+                                    onClick={() => setViewMode('raw')}
+                                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                                      viewMode === 'raw'
+                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                                    }`}
+                                  >
+                                    Raw JSON
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Content Display */}
+                            {viewMode === 'hierarchical' ? (
+                              <HierarchicalViewer content={previewContent} />
+                            ) : (
+                              <pre className="text-sm bg-muted p-4 rounded-lg overflow-x-auto max-h-96 overflow-y-auto">
+                                {JSON.stringify(previewContent, null, 2)}
+                              </pre>
+                            )}
+                          </div>
                         ) : (
-                          <pre className="text-sm bg-muted p-4 rounded-lg overflow-x-auto">
+                          <pre className="text-sm bg-muted p-4 rounded-lg overflow-x-auto max-h-96 overflow-y-auto">
                             {JSON.stringify(previewContent, null, 2)}
                           </pre>
                         )}

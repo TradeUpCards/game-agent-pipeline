@@ -69,5 +69,9 @@ Thumbs.db
 # Training data
 diablo-agent-training/
 
+# Test output
+test-output/
+tmp/
+
 # Unused scrapy scripts
 tools/scrapy/unused-scripts/
